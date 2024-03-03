@@ -1,3 +1,4 @@
+const config=require('config');
 const Joi=require('joi');
 const express=require('express');
 const app=express();
@@ -5,7 +6,10 @@ const mongoose=require('mongoose');
 
 const bdo=require('./routes/bdos')
 
-
+if(!config.get('jwtPrivateKey')){
+    console.error("Fatal error: jwtPrivate key not found");
+    process.exit(1);
+}
 
 mongoose.connect('mongodb://127.0.0.1/mgnrega')
     .then(()=>console.log("connected Mongodb"))

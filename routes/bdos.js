@@ -1,3 +1,5 @@
+const jwt=require('jsonwebtoken');
+const config=require('config');
 const bcrypt=require('bcrypt');
 const {BDO, validate}=require('../models/bdo');
 const express=require('express');
@@ -18,8 +20,10 @@ router.post('/signup',async(req,res)=>{
     const salt=await bcrypt.genSalt(10);
     bdo.password=await bcrypt.hash(bdo.password,salt);
     await bdo.save();
+
+    const token=jwt.sign({_id: bdo._id},config.get('jwtPrivateKey'));
     
-    res.send(bdo);
+    res.header('x-auth-token',token).send(bdo);
 
 });
 
@@ -27,13 +31,15 @@ router.post('/signup',async(req,res)=>{
     const {error}=validateLog(req.body);
     if(error) return res.status(400).send(error.details[0].message);
 
-    let bdo=await BDO.findOne({email: req.body.email});
+    const bdo=await BDO.findOne({email: req.body.email});
     if(!bdo) return res.status(400).send("Invalid credentials");
 
     const validPass=await bcrypt.compare(req.body.password, bdo.password);
     if(!validPass) return res.status(400).send("Invalid credentials");
 
-    res.send(true);
+    const token=jwt.sign({_id: bdo._id},config.get('jwtPrivateKey'));
+
+    res.send(token);
 
 });
 
