@@ -1,4 +1,6 @@
 require('dotenv').config();
+require('express-async-errors');
+const error=require('./middleware/error');
 const express=require('express');
 const app=express();
 const mongoose=require('mongoose');
@@ -26,6 +28,7 @@ app.use(
 );
 app.use('/api/bdo',bdo);
 app.use('/api/worker',worker);
+app.use(error);
 
 
 const port=process.env.PORT || 3000;
