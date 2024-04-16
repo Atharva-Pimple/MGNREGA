@@ -21,9 +21,8 @@ router.post('/signup',async(req,res)=>{
     bdo.password=await bcrypt.hash(bdo.password,salt);
     await bdo.save();
 
-    const token=jwt.sign({_id: bdo._id},process.env.jwtPrivateKey);
     
-    res.header('x-auth-token',token).send(bdo);
+    res.send(bdo);
 
 });
 
@@ -37,9 +36,8 @@ router.post('/signin',async(req,res)=>{
     const validPass=await bcrypt.compare(req.body.password, bdo.password);
     if(!validPass) return res.status(400).send("Invalid credentials");
 
-    const token=jwt.sign({_id: bdo._id},jwtPrivateKey);
 
-    res.send(token);
+    res.send(true);
 
 });
 

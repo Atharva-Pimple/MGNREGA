@@ -13,6 +13,7 @@ faceapi.env.monkeyPatch({Canvas, Image});
 
 const bdo=require('./routes/bdos');
 const worker=require('./routes/workers');
+const project=require('./routes/projects');
 
 const db=process.env.db;
 mongoose.connect(db)
@@ -28,6 +29,7 @@ app.use(
 );
 app.use('/api/bdo',bdo);
 app.use('/api/worker',worker);
+app.use('/api/project',project);
 app.use(error);
 
 

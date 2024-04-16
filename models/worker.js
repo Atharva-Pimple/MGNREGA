@@ -2,7 +2,6 @@ require('dotenv').config();
 const jwt=require('jsonwebtoken');
 const mongoose=require('mongoose');
 const Joi=require('joi');
-const projectSchema=require('./project');
 
 const workerSchema=new mongoose.Schema({
     name:{
@@ -16,7 +15,7 @@ const workerSchema=new mongoose.Schema({
     w_id:{
         type:Number,
         required:true,
-
+        unique:true
     },
     mobileNumber:{
         type:Number,
@@ -44,9 +43,17 @@ const workerSchema=new mongoose.Schema({
         required:true,
         unique:true
     },
+    gender:{
+        type:String,
+        required:true
+    },
     descriptions:{
         type:Array,
         required:true
+    },
+    project: {
+        type:mongoose.SchemaTypes.ObjectId,
+        ref:'Project'
     }
 });
 
@@ -66,7 +73,8 @@ function validateWorker(worker){
         mobileNumber:Joi.number().required(),
         birth_date:Joi.string().required(),
         address:Joi.string().required(),
-        aadharNo:Joi.number().required()
+        aadharNo:Joi.number().required(),
+        gender:Joi.required()
     });
 
     return schema.validate(worker)

@@ -4,24 +4,34 @@ const Joi=require('joi');
 const client = require('twilio')(process.env.accountSid,process.env.twilioToken);
 const {uploadLabeledImages,getdescriptorsFromDB}= require('../faceFunc');
 const bcrypt=require('bcrypt');
+
 const {Worker, validate}=require('../models/worker');
+const {Project}=require('../models/project');
 const express=require('express');
 const router=express()
 
 router.get('/all',async(req,res)=>{
     try {
-        const workers = await Worker.find().select('_id name mobileNumber address'); 
+        const workers = await Worker.find().select('_id w_id name mobileNumber address'); 
         res.json({ success: true, data: workers }); 
-      } catch (error) {
+    } catch (error) {
         res.status(500).json({ success: false, message: error.message });
-      }
+    }
+});
+
+router.get('/me',auth,async(req,res)=>{
+    const worker=Worker.findById(req.user._id);
+
+    if(!worker) return res.status(404).send("no user found"); 
+
+    res.send(worker);
 });
 
 router.post('/signup',async(req,res)=>{ 
     const {error}=validate(req.body);
     if(error) return res.status(400).send(error.details[0].message);
 
-    let worker=await Worker.findOne({email: req.body.email});
+    let worker=await Worker.findOne({mobileNumber: req.body.mobileNumber});
     if(worker) return res.status(400).send("Already registered");
 
     const username = generateUsername();
@@ -46,6 +56,7 @@ router.post('/signup',async(req,res)=>{
         aadharNo:req.body.aadharNo,
         birth_date:req.body.birth_date,
         address:req.body.address,
+        gender:req.body.gender,
         descriptions:descriptions
     });
     const salt=await bcrypt.genSalt(10);
@@ -99,6 +110,21 @@ router.post('/signin',async(req,res)=>{
     res.header('auth-token',token).send(true);
 
 });
+
+// router.put('/addproject',async(req,res)=>{
+//     const project=Project.findById(req.body.prj_id);
+//     if(!project) return res.status(400).send('Project does not exist');
+
+//     const worker=Worker.findById(req.body.wrk_id);
+//     if(!worker) return res.status(400).send('Worker does not exist');
+
+//     worker.set({
+//         project:req.body.prj_id
+//     });
+//     await worker.save();
+
+//     res.send('project added');
+// });
 
 function validateLog(worker){
     const schema=Joi.object({

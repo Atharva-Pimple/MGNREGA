@@ -1,8 +1,15 @@
+require('dotenv').config();
+const jwt=require('jsonwebtoken');
 const mongoose=require('mongoose');
 const Joi=require('joi');
 
 
 const projectSchema=new mongoose.Schema({
+    sr_no:{
+        type:Number,
+        required:true,
+        unique: true
+    },
     name:{
         type:String,
         required:true
@@ -20,11 +27,13 @@ const projectSchema=new mongoose.Schema({
     }
 });
 
+
 const Project= mongoose.model('Project',projectSchema);
 
 function validateProject(proj){
     const schema=Joi.object({
-        name:Joi.String().required(),
+        sr_no:Joi.number().required(),
+        name:Joi.string().required(),
         altitude:Joi.number().required(),
         latitude:Joi.number().required(),
         description: Joi.string()
@@ -35,4 +44,4 @@ function validateProject(proj){
 
 exports.projectSchema=projectSchema;
 exports.Project=Project;
-exports.valiadte=validateProject;
+exports.validate=validateProject;
