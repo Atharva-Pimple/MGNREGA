@@ -52,7 +52,7 @@ const workerSchema=new mongoose.Schema({
         required:true
     },
     project: {
-        type:mongoose.SchemaTypes.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         ref:'Project'
     }
 });

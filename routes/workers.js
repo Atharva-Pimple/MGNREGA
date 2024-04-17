@@ -5,8 +5,8 @@ const client = require('twilio')(process.env.accountSid,process.env.twilioToken)
 const {uploadLabeledImages,getdescriptorsFromDB}= require('../faceFunc');
 const bcrypt=require('bcrypt');
 
+const mongoose=require('mongoose');
 const {Worker, validate}=require('../models/worker');
-const {Project}=require('../models/project');
 const express=require('express');
 const router=express()
 
@@ -111,20 +111,45 @@ router.post('/signin',async(req,res)=>{
 
 });
 
-// router.put('/addproject',async(req,res)=>{
-//     const project=Project.findById(req.body.prj_id);
-//     if(!project) return res.status(400).send('Project does not exist');
+router.put('/addproject', async (req, res) => {
+    const { workerId, projectId } = req.body; 
+  
+    try {
+      
+        if (!mongoose.Types.ObjectId.isValid(workerId) || !mongoose.Types.ObjectId.isValid(projectId)) {
+            return res.status(400).json({ success: false, message: 'Invalid ObjectId' });
+        }
 
-//     const worker=Worker.findById(req.body.wrk_id);
-//     if(!worker) return res.status(400).send('Worker does not exist');
+        const worker = await Worker.findById(workerId);
+        if (!worker) {
+            return res.status(404).json({ success: false, message: 'Worker not found' });
+        }
 
-//     worker.set({
-//         project:req.body.prj_id
-//     });
-//     await worker.save();
+        if (worker.project) {
+            return res.status(400).json({ success: false, message: 'Worker already has a project assigned' });
+        }
+      
+        const updatedWorker = await Worker.findByIdAndUpdate(workerId, { project: projectId }, { new: true });
+  
+        res.json({ success: true, message: 'worker added' });
+  
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
-//     res.send('project added');
-// });
+router.get('/project',auth,async(req,res)=>{
+    const worker = await Worker
+        .findById(req.user._id)
+        .populate('project','-_id')
+        .select('-_id project');
+
+    if (!worker.project) {
+        return res.status(400).json({ success: false, message: 'Worker does not have project'});
+    }
+
+    res.json({ success: true, data: worker});
+});
 
 function validateLog(worker){
     const schema=Joi.object({
