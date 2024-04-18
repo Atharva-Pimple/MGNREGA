@@ -20,7 +20,12 @@ router.get('/all',async(req,res)=>{
 });
 
 router.get('/me',auth,async(req,res)=>{
-    const worker=Worker.findById(req.user._id);
+    if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
+        return res.status(400).json({ success: false, message: 'Invalid ObjectId' });
+    }
+    const worker = await Worker
+        .findById(req.user._id)
+        .select('-_id -project -descriptions');
 
     if(!worker) return res.status(404).send("no user found"); 
 
