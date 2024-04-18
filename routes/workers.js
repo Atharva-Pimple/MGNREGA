@@ -82,11 +82,11 @@ router.post('/signup',async(req,res)=>{
                 })
                 .then(message => {
                     console.log(message.sid);
-                    res.status(200).json({ message: 'Username and Password sent to mobile number' });
+                    res.status(200).json({ success:true ,message: 'Username and Password sent to mobile number' });
                 })
                 .catch(err => {
                     console.error(err);
-                    res.status(500).json({ message: 'Failed to send SMS' });
+                    res.status(500).json({ success:false ,message: 'Failed to send SMS' });
                 });
         });
 
