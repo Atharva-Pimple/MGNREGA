@@ -7,6 +7,7 @@ const bcrypt=require('bcrypt');
 
 const mongoose=require('mongoose');
 const {Worker, validate}=require('../models/worker');
+const {Attendance}=require('../models/attendance');
 const express=require('express');
 const router=express()
 
@@ -93,11 +94,33 @@ router.post('/signup',async(req,res)=>{
 });
 
 router.post("/check-face",auth,async (req,res)=>{
+    const worker = await Worker.findById(req.user._id);
+    if (!worker) {
+        return res.status(404).json({ success: false, message: 'Worker not found' });
+    }
+
+    if (!worker.project) {
+        return res.status(400).json({ success: false, message: 'Worker has no project assigned' });
+    }
+
     const File1=req.files.File1.tempFilePath;
     let result=await getdescriptorsFromDB(File1,req.user._id);
 
+    const threshold = 0.6;
+
+    if (result[0]._distance < threshold) {
+        const attendance=new Attendance({
+            worker_name:worker.name
+        });
+
+        await attendance.save();
+        
+    } else {
+        return res.json({success: false,result});
+    }
+
     
-    res.json({result});
+    res.json({success: true,result});
 });
 
 router.post('/signin',async(req,res)=>{

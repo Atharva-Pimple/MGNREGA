@@ -9,7 +9,8 @@ const fileUpload=require('express-fileupload');
 const faceapi=require('face-api.js');
 faceapi.env.monkeyPatch({Canvas, Image});
 
-
+const cors=require('cors');
+app.use(cors());
 
 const bdo=require('./routes/bdos');
 const worker=require('./routes/workers');
