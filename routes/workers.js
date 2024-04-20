@@ -20,11 +20,11 @@ router.get('/all',async(req,res)=>{
     }
 });
 
-router.get('/me',auth,async(req,res)=>{
+router.get('/me',auth,async(req,res)=>{ 
     if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
         return res.status(400).json({ success: false, message: 'Invalid ObjectId' });
     }
-    const worker = await Worker
+    const worker = await Worker   
         .findById(req.user._id)
         .select('-_id -project -descriptions');
 
@@ -185,7 +185,7 @@ function validateLog(worker){
         password:Joi.string().max(100).required()
     });
 
-    return schema.validate(worker)
+    return schema.validate(worker);
 }
 
 function generateUsername() {

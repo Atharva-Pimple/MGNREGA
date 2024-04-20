@@ -15,6 +15,7 @@ app.use(cors());
 const bdo=require('./routes/bdos');
 const worker=require('./routes/workers');
 const project=require('./routes/projects');
+const attendance=require('./routes/attendance');
 
 const db=process.env.db;
 mongoose.connect(db)
@@ -31,6 +32,7 @@ app.use(
 app.use('/api/bdo',bdo);
 app.use('/api/worker',worker);
 app.use('/api/project',project);
+app.use('/api/attendance',attendance);
 app.use(error);
 
 
